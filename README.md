@@ -1,8 +1,8 @@
 # Heat-Shift Roster
 
-**One line / Ek line:** Har subah construction site ka roster kal ki asli garmi (WBGT) ke hisaab se dobara bane — bhaari kaam thande ghante me, dihaadi protected, compliance log ke saath.
+**One line:** Every morning, the construction site roster is rebuilt from real heat (WBGT) — heavy work in the cool hours, full daily wage protected, with a compliance log.
 
-## How to run / Kaise chalao
+## How to run
 
 ```bash
 cd heat-shift-roster
@@ -10,35 +10,34 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Browser me khul jayega. Date badlo (default 29 May 2024 — sabse garam din), language upar se badlo (English / Hindi).
+It opens in the browser. Change the date (default 29 May 2024 — the hottest day), change the language from the top (English / Hindi).
 
-## What is real / Kya asli hai
+## What is real
 
-- **Weather / Mausam — REAL:** Patna, May–June 2024, 1,464 hourly rows (`data/patna_weather_2024_may_june.csv`). Max temp 42.6°C, max WBGT 35.22°C on 29 May 2024, 12:00. Source: Open-Meteo archive, Patna (25.6, 85.1).
-- **WBGT formula — REAL:** WBGT = 0.7 × wet bulb + 0.2 × globe + 0.1 × air temp. Wet bulb Stull formula se, globe temp solar se.
-- **ML forecast — REAL:** LightGBM, kal ka hourly WBGT predict karta hai, real weather pe train hota hai. **MAE = 0.72°C** (last 7 days test, June 2024). Fake score nahi hai.
-- **Roster optimiser — REAL:** PuLP (CBC solver). Bhaari kaam sirf thande slot me (06-11, 16-20), 12-16 break, 11-12 me bhaari kaam zero.
-- **Risk score — RULE + ML:** Age + bhaari/halka + naya/purana + WBGT se score. RandomForest classifier rule wale label pe train hota hai — train accuracy 1.0 aati hai kyunki label rule se bane hain (demo hai, sach likha hai).
+- **Weather — REAL:** Patna, May–June 2024, 1,464 hourly rows (`data/patna_weather_2024_may_june.csv`). Max temp 42.6°C, max WBGT 35.22°C on 29 May 2024, 12:00. Source: Open-Meteo archive, Patna (25.6, 85.1).
+- **WBGT formula — REAL:** WBGT = 0.7 × wet bulb + 0.2 × globe + 0.1 × air temp. Wet bulb uses the Stull formula, globe temp comes from solar radiation.
+- **ML forecast — REAL:** LightGBM predicts next-day hourly WBGT, trained on real weather. **MAE = 0.72°C** (last 7 days test, June 2024). Not a fake score.
+- **Roster optimiser — REAL:** PuLP (CBC solver). Heavy work only in cool slots (06–11, 16–20), 12–16 break, zero heavy work 11–12.
+- **Risk score — RULE + ML:** Score from age + heavy/light work + new/experienced + WBGT. A RandomForest classifier is trained on rule-based labels — train accuracy is 1.0 because the labels come from rules (demo, stated honestly).
 
-## What is demo / Kya demo hai
+## What is demo
 
-- **Site:** Patna Bypass Road Site-1 — naam demo hai, asli contractor site nahi hai.
-- **Workers:** 25 workers, naam/umar demo hain. Koi real health data nahi hai (privacy).
-- **Tasks:** 8 tasks demo hain. Roster aur risk usi demo data pe chalte hain.
+- **Site:** Patna Bypass Road Site-1 — demo name, not a real contractor site.
+- **Workers:** 25 workers, names and ages are demo. No real health data (privacy).
+- **Tasks:** 8 demo tasks. Roster and risk run on this demo data.
 
-## App me kya hai (sirf zaroori cheez)
+## What is in the app
 
-1. WBGT graph — din bhar ki garmi, 28 aur 32 ki line ke saath
-2. Purana vs naya roster — side by side
+1. WBGT graph — heat through the day, with 28 and 32 lines
+2. Old vs new roster — side by side
 3. Worker risk list — High / Medium / Low
-4. Morning brief — Hindi + English dono
-5. Compliance PDF download — Hindi pehle, English neeche (OSH Code log)
+4. Morning brief — Hindi + English
+5. Compliance PDF download — Hindi first, English below (OSH Code log)
 
-## Interview story / Interview me kya bolega
+## Interview story
 
-"Maine construction site ka roster garmi ke hisaab se dobara banaya. Real Patna weather (1,464 rows) se WBGT nikala, LightGBM se kal ki garmi predict ki (MAE 0.72°C), PuLP optimiser se bhaari kaam thande time me daala, dihaadi poori rakhi, aur OSH Code ka compliance PDF banaya. Demo 29 May 2024 heatwave pe hai — us din WBGT 35.22°C tha."
+"I rebuilt a construction site roster around heat. I took WBGT from real Patna weather (1,464 rows), predicted tomorrow's heat with LightGBM (MAE 0.72°C), moved heavy work to cool hours with a PuLP optimiser, kept the full daily wage, and built an OSH Code compliance PDF. The demo is on the 29 May 2024 heatwave — WBGT was 35.22°C that day."
 
 ## Note
 
-Ye medical advice nahi hai. Tabiyat kharab ho to doctor ko dikhao.
 This is not medical advice. See a doctor if you feel unwell.

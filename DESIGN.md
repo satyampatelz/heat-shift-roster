@@ -1,125 +1,125 @@
 # Heat-Shift Roster — Deep Design, 16 Nov 2026
-Sat ne bola: deep nahi hai, bahut kuch missing lag raha hai.
-Ye file woh missing cheezein bhar deti hai. Kuch banaya nahi hai — sirf design hai.
+Sat said: it is not deep enough, a lot feels missing.
+This file fills those gaps. Nothing is built here — only design.
 
 ## 1 line
-Har subah construction site ka roster kal ki asli garmi (WBGT) ke hisaab se dobara bane — bhaari kaam thande ghante me, dihaadi protected, compliance log ke saath.
+Every morning, the construction site roster is rebuilt from real heat (WBGT) — heavy work in the cool hours, full daily wage protected, with a compliance log.
 
-## Problem — asli, bada
-- 2024 me heat se $194B aur 247B labour hours gaye; 1,832 heat deaths (India).
-- Construction worker dopahar me bhaari kaam karta hai, garmi me girta hai, site rukti hai, company ko nuksaan.
-- Garmi har saal badh rahi hai — ye long-term problem hai, ek saal ka nahi.
+## Problem — real and big
+- In 2024, heat cost $194B and 247B labour hours; 1,832 heat deaths (India).
+- A construction worker does heavy work at noon, falls sick in the heat, the site stops, the company loses money.
+- Heat rises every year — this is a long-term problem, not a one-year problem.
 
-## Government — kyun ye real hai
-- OSH Code 21 Nov 2025 se LAGU hai, Rules 8 May 2026 — BoCW employer ko work-rest cycle DENA HI HOGA.
-- Maharashtra SOP Apr 2026: 6-11am / 4-8pm kaam, 12-4pm break.
-- Iska matlab: company ko karna hi hoga, isiliye payer hai. Ye kanoon ka tailwind hai, sirf achhi idea nahi.
-- Inspector ko dated log chahiye — wo log ye app banata hai.
+## Government — why this is real
+- OSH Code in force from 21 Nov 2025, Rules 8 May 2026 — under BoCW, the employer MUST give a work-rest cycle.
+- Maharashtra SOP Apr 2026: work 6–11am / 4–8pm, break 12–4pm.
+- That means companies have to do it, so there is a payer. This is a legal tailwind, not just a good idea.
+- The inspector wants a dated log — this app makes that log.
 
-## WBGT — garmi kaise naapein (missing tha)
-- WBGT sirf temperature nahi hai. Isme 4 cheez aati hai: hawa ka temperature, nami (humidity), hawa ki speed, dhoop (solar radiation).
-- Formula: WBGT = 0.7 x Wet Bulb + 0.2 x Globe Temp + 0.1 x Air Temp. Outdoor me ye standard hai.
-- Threshold (kaam ki bhari-pan ke hisaab se):
-  - Halka kaam: WBGT 30 se upar ho to break badhao
-  - Bhaari kaam: WBGT 28 se upar ho to break badhao, 32 se upar ho to dopahar me bhaari kaam band
-- Data: IMD / Open-Meteo se free mausam (temp, humidity, wind, solar). History ke liye ERA5 / IMD gridded data.
-- Har ghante ka WBGT nikalo, sirf din ka max nahi — subah 6 baje alag, dopahar 2 baje alag.
+## WBGT — how to measure heat (was missing)
+- WBGT is not just temperature. It takes 4 things: air temperature, humidity, wind speed, sunlight (solar radiation).
+- Formula: WBGT = 0.7 x Wet Bulb + 0.2 x Globe Temp + 0.1 x Air Temp. This is the outdoor standard.
+- Thresholds (by how heavy the work is):
+  - Light work: if WBGT goes above 30, increase breaks
+  - Heavy work: if WBGT goes above 28, increase breaks; above 32, stop heavy work at noon
+- Data: free weather from IMD / Open-Meteo (temp, humidity, wind, solar). For history, ERA5 / IMD gridded data.
+- Find WBGT for every hour, not just the day's max — 6am is different from 2pm.
 
-## Input — kya chahiye (missing tha)
-1. Site: naam, jagah (Patna demo), kitne workers, kaunsi shift
-2. Kaam list: kaam kya hai, bhaari/halka, kitne ghante, kispe depend karta hai, deadline kab hai
-3. Worker: age, kaam type, pehle ki tabiyat, naye hai ya purane (acclimatization), PPE kya pehna hai
-4. Mausam: kal + aane wale 3 din ka forecast
-- Worker ki health data sensitive hai — naam + age + kaam type bas, bimari ka detail nahi. Privacy ka khayal rakhna hai.
+## Input — what is needed (was missing)
+1. Site: name, place (Patna demo), how many workers, which shift
+2. Work list: what the work is, heavy/light, how many hours, what it depends on, deadline
+3. Worker: age, work type, past health, new or experienced (acclimatization), what PPE they wear
+4. Weather: tomorrow + next 3 days forecast
+- Worker health data is sensitive — only name + age + work type, no illness details. Privacy matters.
 
-## ML — 3 jagah, asli wali (missing tha)
-### 1. Garmi forecast — LightGBM
-- Kaam: Kal + 3 din ka WBGT predict karo, har ghante ka.
-- Input: pichle 7 din ka mausam, mausam ka trend, jagah, mahina.
-- Output: P10 / P50 / P90 — matlab best, normal, worst case.
-- Check: MAE se naapo, kitna galat hua. Agar forecast galat ho to roster galat hoga — isiliye ye zaroori hai.
+## ML — 3 places, the real kind (was missing)
+### 1. Heat forecast — LightGBM
+- Job: predict WBGT for tomorrow + 3 days, every hour.
+- Input: last 7 days of weather, weather trend, place, month.
+- Output: P10 / P50 / P90 — best, normal, worst case.
+- Check: measure with MAE. If the forecast is wrong, the roster is wrong — that is why this matters.
 ### 2. Worker risk score — LightGBM / Random Forest
-- Kaam: Kaun worker zyada risk me hai, score 0-100.
-- Input: age, kaam bhaari/halka, pichle din kitne ghante dhoop me, naye hai ya purane, pehle koi incident hua ya nahi.
-- Output: Low / Medium / High. High wale ko dopahar me mat lagao, halka kaam do.
-- Check: Precision / Recall — High risk wale ko miss mat karo.
-### 3. Smart roster seekhna
-- Kaam: Pichle roster se seekho, kaunsa schedule best raha.
-- Input: pichla roster, us din ki garmi, kitna kaam hua, koi incident hua ya nahi.
-- Output: Har hafte model thoda aur smart — kaunsa kaam kis ghante me best hota hai.
-- Ye Phase 2 hai, pehle din se nahi. Pehle rule + optimiser se shuru karo.
+- Job: score 0–100 for which worker is most at risk.
+- Input: age, heavy/light work, how many hours in the sun yesterday, new or experienced, any past incident.
+- Output: Low / Medium / High. Do not put High workers on noon heavy work, give them light work.
+- Check: Precision / Recall — do not miss a High-risk worker.
+### 3. Smart roster learning
+- Job: learn from past rosters, which schedule worked best.
+- Input: past roster, that day's heat, how much work got done, any incident.
+- Output: every week the model gets a little smarter — which work fits which hour best.
+- This is Phase 2, not day one. Start with rules + optimiser first.
 
-## Roster optimiser — kaam kaise badlein
-- Optimiser ka kaam: bhaari kaam thande ghante me daalo, halka kaam garam ghante me, break 12-4pm.
-- Rules jo todne nahi hain:
-  - Deadline wala kaam pehle, par garmi me nahi
-  - Ek kaam dusre pe depend karta hai to order mat bigado
-  - Crew size kam mat karo, dihaadi mat kaato
-  - Har worker ko din me kam se kam 2 break + paani ka time
-- Tool: PuLP / OR-Tools se optimiser. Objective: safety pehle, phir kaam pura ho, phir cost kam.
-- Output: Naya roster, purana roster se kya badla, kyun badla — ek line me wajah.
+## Roster optimiser — how work moves
+- The optimiser's job: put heavy work in cool hours, light work in hot hours, break 12–4pm.
+- Rules that must not break:
+  - Deadline work first, but not in the heat
+  - If one job depends on another, do not break the order
+  - Do not cut crew size, do not cut daily wages
+  - Every worker gets at least 2 breaks + water time per day
+- Tool: PuLP / OR-Tools optimiser. Goal: safety first, then finish the work, then lower cost.
+- Output: new roster, what changed from the old roster, why it changed — in one line.
 
-## Pay protection — dihaadi kaise bachegi (missing tha)
-- Worker ko dopahar me break milega, par dihaadi poori milegi. Ye likh ke do.
-- Kaise: Break ka time kaam ke ghante me gino, alag se kaatna mat. Roster me saaf dikhao — "Aaj 8 ghante kaam, 1 ghante break, dihaadi poori".
-- Payroll ke liye: Ek line export — worker, date, ghante, dihaadi, break. Contractor ko ye file milegi.
+## Pay protection — how the daily wage is saved (was missing)
+- The worker gets a noon break, but the full daily wage. Give this in writing.
+- How: count break time inside work hours, do not cut it separately. Show it clearly in the roster — "Today 8 hours work, 1 hour break, full daily wage".
+- For payroll: a one-line export — worker, date, hours, wage, break. The contractor gets this file.
 
-## Hindi brief + alert (missing tha)
-- Har subah Hindi me brief: "Aaj dopahar 2-4 garmi zyada hai, bhaari kaam subah karo, paani piyo, break lo."
-- Voice: Hindi TTS se audio banao, site manager WhatsApp pe bhej de.
-- Alert: Agar WBGT 32 se upar jaye to turant alert — "Abhi bhaari kaam roko, chhaya me jao."
+## Hindi brief + alert (was missing)
+- Every morning a brief in Hindi: "Today 2–4pm heat is high, do heavy work in the morning, drink water, take breaks."
+- Voice: make audio with Hindi TTS, the site manager sends it on WhatsApp.
+- Alert: if WBGT goes above 32, alert at once — "Stop heavy work now, go to shade."
 
-## Compliance log — inspector ko kya milega (missing tha)
-- Har din ka PDF log: date, site, WBGT har ghante, roster kya tha, break kab diye, kis worker ko high risk pe halka kaam diya, kisne approve kiya.
-- Log me date + time + signature jaisa record rahe. Yehi OSH Code ka proof hai.
-- Data 1 saal tak save rahe, SQLite me.
+## Compliance log — what the inspector gets (was missing)
+- A daily PDF log: date, site, WBGT every hour, what the roster was, when breaks were given, which high-risk worker got light work, who approved it.
+- The log must keep date + time + a signature-like record. This is the proof for the OSH Code.
+- Data stays saved for 1 year, in SQLite.
 
-## App — kya dikhega
-- Streamlit dashboard: Kal ka WBGT graph, roster table (purana vs naya), risk list, compliance PDF download.
-- Manager ko 1 page me sab dikhe: aaj kya badla, kyun badla, kitna kaam hoga.
-- Mobile pe khulna chahiye, site pe laptop nahi hota.
+## App — what it shows
+- Streamlit dashboard: tomorrow's WBGT graph, roster table (old vs new), risk list, compliance PDF download.
+- The manager sees everything on 1 page: what changed today, why it changed, how much work will get done.
+- It must open on mobile — there is no laptop on site.
 
-## Demo — kaise dikhayein (missing tha)
-- Site: Patna, ek construction site (naam nakli, roster nakli).
-- Mausam: 2024 heatwave ka asli data — May-June 2024, Patna.
-- Before / After: Pehle wala roster (dopahar me bhaari kaam) vs naya roster (subah bhaari kaam). Compare karo — kitne ghante garmi me kam hue, kitne incident kam honge, kaam kitna pura hoga.
-- Video: Sat apni awaaz me 5 min demo — "Ye dekho, dopahar me WBGT 33 tha, humne kaam subah kar diya, dihaadi poori mili."
+## Demo — how to show it (was missing)
+- Site: Patna, one construction site (fake name, fake roster).
+- Weather: real data from the 2024 heatwave — May–June 2024, Patna.
+- Before / After: old roster (heavy work at noon) vs new roster (heavy work in the morning). Compare — how many hot hours were cut, how many incidents would drop, how much work gets done.
+- Video: Sat does a 5-min demo in his own voice — "See, at noon WBGT was 33, we moved the work to the morning, full wage was paid."
 
-## Business — paisa kaise aayega (missing tha)
-- Payer: site manager / contractor, kal ka roster aaj set karta hai.
-- Price: ₹1,999–4,999 / site / month. Ek site pe 20-50 worker hote hain, ek worker ki dihaadi ₹500-800 hai — ek din ka incident bhi isse zyada kharcha hai.
-- Trial: 1 site pe 2 hafte free, phir paid.
-- Risk: Contractor slow buyer hota hai, turant nahi kharidega. Isiliye demo + compliance log pehle dikhao, sale baad me.
-- Long-term: Ek site se 10 site, ek sheher se dusre sheher, phir government dashboard.
+## Business — how money comes in (was missing)
+- Payer: site manager / contractor, who sets tomorrow's roster today.
+- Price: ₹1,999–4,999 / site / month. One site has 20–50 workers, one worker's daily wage is ₹500–800 — even one day's incident costs more than this.
+- Trial: 2 weeks free on 1 site, then paid.
+- Risk: a contractor is a slow buyer, he will not buy at once. So show the demo + compliance log first, sell later.
+- Long-term: from 1 site to 10 sites, from one city to another, then a government dashboard.
 
 ## Tech stack
-- Python, Pandas, NumPy — data saaf karo
+- Python, Pandas, NumPy — clean the data
 - LightGBM — forecast + risk score
 - PuLP / OR-Tools — roster optimiser
 - Streamlit — dashboard
-- SQLite — log save karo
-- Open-Meteo / IMD — mausam free
+- SQLite — save the log
+- Open-Meteo / IMD — free weather
 - Hindi TTS — voice brief
 
-## Plan — 4 hafte, laptop se
-- Week 1: Data + WBGT engine — Patna 2024 heatwave data, har ghante WBGT nikalo, threshold test karo.
-- Week 2: ML forecast + risk score — LightGBM train karo, MAE / Precision check karo.
-- Week 3: Roster optimiser + Hindi brief + PDF log — Streamlit app banao.
-- Week 4: Demo + test — Before/After compare karo, video demo banao, README likho.
+## Plan — 4 weeks, from a laptop
+- Week 1: Data + WBGT engine — Patna 2024 heatwave data, find WBGT every hour, test thresholds.
+- Week 2: ML forecast + risk score — train LightGBM, check MAE / Precision.
+- Week 3: Roster optimiser + Hindi brief + PDF log — build the Streamlit app.
+- Week 4: Demo + test — compare Before/After, make the video demo, write the README.
 
-## Risks — sach baat (missing tha)
-- Mausam forecast galat ho sakta hai — isiliye P10/P50/P90 do, aur real-time alert rakho.
-- Contractor turant nahi kharidega — demo pehle, sale baad me.
-- Worker data sensitive hai — naam + age bas, bimari ka detail mat lo.
-- Ye medical advice nahi hai — doctor ki jagah nahi lega, ye likhna hoga.
-- Demo me site nakli hai, mausam asli hai — README me saaf likhna hoga.
+## Risks — the honest truth (was missing)
+- The weather forecast can be wrong — that is why we give P10/P50/P90, and keep real-time alerts.
+- The contractor will not buy at once — demo first, sale later.
+- Worker data is sensitive — only name + age, no illness details.
+- This is not medical advice — it cannot replace a doctor, this must be written.
+- In the demo the site is fake, the weather is real — the README must say this clearly.
 
-## Interview me kya bolega — Sat ki kahani
-- "Maine construction site ka roster garmi ke hisaab se dobara banaya, ML se forecast + risk score, OSH Code ka compliance log banaya. 2024 heatwave pe test kiya."
-- Skills dikhenge: Python, Pandas, LightGBM, PuLP, SQL, Streamlit, Hindi product.
-- Yehi woh project hai jisme company bolegi "tum mere paas kaam karo" — kyunki problem real hai, kanoon real hai, demo real mausam pe hai.
+## Interview story — Sat's story
+- "I rebuilt a construction site roster around heat, with ML forecast + risk score, and an OSH Code compliance log. I tested it on the 2024 heatwave."
+- Skills it shows: Python, Pandas, LightGBM, PuLP, SQL, Streamlit, Hindi product.
+- This is the project where a company says "come work for me" — because the problem is real, the law is real, and the demo runs on real weather.
 
-## Kya abhi bhi missing hai
-- Asli site ka roster — abhi tak koi real contractor nahi hai, demo synthetic roster pe hai.
-- Asli worker ka data — privacy ke wajah se abhi tak nahi hai, demo me dummy worker hain.
-- Ye dono Phase 2 me aayenge, jab pehla demo ban jaye.
+## What is still missing
+- A real site roster — there is no real contractor yet, the demo runs on a synthetic roster.
+- Real worker data — not there yet because of privacy, the demo has dummy workers.
+- Both come in Phase 2, once the first demo is made.
