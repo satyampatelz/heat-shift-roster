@@ -166,7 +166,8 @@ st.markdown("""
       linear-gradient(158deg,#fdf3dc 0%,#f9e7c8 26%,#f3ecd9 48%,#e2efe6 74%,#d8ecec 100%);
     background-attachment: fixed;
   }
-  .block-container { max-width: 1080px; padding-top: 1.5rem; }
+  header[data-testid="stHeader"] { display: none; }
+  .block-container { max-width: 1080px; padding-top: 2rem; }
   h1 { font-size: 2rem; font-weight: 700; color: #1a2233; letter-spacing: -0.5px; }
   h2 { font-size: 1.2rem; font-weight: 600; color: #173f63; margin-top: 2rem; }
   h2::after { content: ""; display: block; width: 48px; height: 3px; background: #a07d16; margin-top: 4px; }
@@ -196,9 +197,11 @@ st.markdown("""
   .roster-head { background: linear-gradient(90deg,#0e7a6d,#095a4f); color: #ffffff;
                  border-radius: 10px 10px 0 0; padding: .7rem 1rem; font-weight: 600; }
   .stButton>button { background: linear-gradient(135deg,#173f63,#0e7a6d); color: white;
-                     border-radius: 8px; border: none; padding: .5rem 1.2rem; }
+                     border-radius: 8px; border: none; padding: .5rem 1.2rem; font-weight: 600; }
   .stDownloadButton>button { background: linear-gradient(135deg,#173f63,#0e7a6d); color: white;
-                             border-radius: 8px; border: none; padding: .5rem 1.2rem; }
+                             border-radius: 8px; border: none; padding: .5rem 1.2rem; font-weight: 600; }
+  /* button ka text <p> me aata hai — uska rang white rakho, nahi to dark button pe dark text dikhega */
+  .stButton>button p, .stDownloadButton>button p { color: #ffffff; margin: 0; }
   .day-chip { background: #ffffff; border: 1px solid #e7e2d4; border-radius: 10px;
               padding: .6rem .4rem; text-align: center; font-size: .85rem; }
   .sun-art { text-align: center; margin-top: 2rem; opacity: .9; }
