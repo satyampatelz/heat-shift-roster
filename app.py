@@ -236,6 +236,12 @@ if "up_key" not in st.session_state:
     st.session_state.up_key = 0
 if "live_place" not in st.session_state:
     st.session_state.live_place = None
+if "map_lat" not in st.session_state:
+    st.session_state.map_lat = None
+if "map_lon" not in st.session_state:
+    st.session_state.map_lon = None
+if "map_last_click" not in st.session_state:
+    st.session_state.map_last_click = None
 if "live_wbgt" not in st.session_state:
     st.session_state.live_wbgt = {}
 if "live_temp" not in st.session_state:
@@ -327,6 +333,8 @@ def pick_place(lat, lon, label):
         st.session_state.live_status = "err"
         return
     st.session_state.live_place = label
+    st.session_state.map_lat = lat
+    st.session_state.map_lon = lon
     st.session_state.live_wbgt = wbgt_days
     st.session_state.live_temp = temp_days
     st.session_state.live_dates = sorted(wbgt_days.keys())
@@ -477,6 +485,34 @@ else:
         with chip_cols[i]:
             if st.button(hi_name if lang == "hi" else en_name, key=f"chip_{i}"):
                 pick_place(lat, lon, en_name)
+    # map — tap karo to us jagah ka live weather lao
+    try:
+        from streamlit_folium import st_folium
+        import folium
+        map_ok = True
+    except Exception:
+        map_ok = False
+    if map_ok:
+        # leaflet local file se — CDN slow ho to bhi map chale; sirf leaflet chahiye
+        folium.Map.default_js = [("leaflet", "/app/static/leaflet.js")]
+        folium.Map.default_css = [("leaflet_css", "/app/static/leaflet.css")]
+        # India centre, zoom 5
+        m = folium.Map(location=[25.6, 85.1], zoom_start=5)
+        # chuni hui jagah pe marker lagao
+        if st.session_state.map_lat is not None:
+            folium.Marker([st.session_state.map_lat, st.session_state.map_lon],
+                          tooltip=st.session_state.live_place or "").add_to(m)
+        out = st_folium(m, height=350, use_container_width=True, key="loc_map")
+        click = out.get("last_clicked") if out else None
+        if click:
+            # same click dobara process mat karo
+            clat, clon = round(click["lat"], 2), round(click["lng"], 2)
+            if (clat, clon) != st.session_state.map_last_click:
+                st.session_state.map_last_click = (clat, clon)
+                pick_place(clat, clon, f"Map ({clat:.2f}, {clon:.2f})")
+                st.rerun()
+    else:
+        st.caption("Map needs streamlit-folium — run: pip install -r requirements.txt")
     # abhi koi jagah nahi chuni
     if not st.session_state.live_dates:
         st.info(T["no_loc"])
