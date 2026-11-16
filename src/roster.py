@@ -129,12 +129,16 @@ def new_roster(tasks_df):
 
 
 # purana vs naya — kya badla, ek line me
-def what_changed(old_df, new_df):
+def what_changed(old_df, new_df, lang="en"):
     # dopahar me bhaari kaam kitne ghante tha, pehle aur ab
-    old_heavy_hot = "08:00-17:00 me dopahar 12-16 bhi kaam tha"
-    new_heavy_hot = "bhaari kaam 06-11 aur 16-20 me, 12-16 break"
+    if lang == "hi":
+        return [
+            "Pehle: 08:00-17:00 me dopahar 12-16 bhi kaam tha",
+            "Ab: bhaari kaam 06-11 aur 16-20 me, 12-16 break",
+            "Dihaadi: poori milegi, break ka time kaata nahi jayega",
+        ]
     return [
-        "Pehle: " + old_heavy_hot,
-        "Ab: " + new_heavy_hot,
-        "Dihaadi: poori milegi, break ka time kaata nahi jayega",
+        "Before: work 08:00-17:00, heavy work at noon 12-16 too",
+        "Now: heavy work 06-11 and 16-20, break 12-16",
+        "Daily wage: full pay, break time is not cut",
     ]

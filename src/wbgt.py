@@ -31,6 +31,21 @@ def wbgt(temp_c, humidity, solar):
     return round(value, 2)
 
 
+# live forecast se WBGT andaza lagao — temp, nami, dhoop, hawa se
+def est_wbgt(temp_c, humidity, solar, wind):
+    # pehle wet bulb nikalo
+    tw = wet_bulb(temp_c, humidity)
+    # dhoop se globe temp upar jata hai, hawa se kam hota hai
+    if solar > 0:
+        lift = min(14, solar / 55) * (1 if wind < 2 else 0.72)
+    else:
+        lift = 0
+    tg = temp_c + lift
+    # WBGT jodo
+    value = 0.7 * tw + 0.2 * tg + 0.1 * temp_c
+    return round(value, 2)
+
+
 # ek ghante ke liye kya karna hai — break, ya bhaari kaam band?
 def hour_action(wbgt_value, work_type):
     # bhaari kaam ho aur WBGT 32 se upar ho to band karo

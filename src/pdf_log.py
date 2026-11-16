@@ -1,5 +1,6 @@
-# pdf_log.py — compliance PDF banao, Hindi + English dono me
+# pdf_log.py — compliance PDF banao, English me
 # reportlab se banega, simple wala
+# PDF English-only hai — font Devanagari nahi likh sakta
 import os
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
@@ -8,9 +9,9 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import colors
 
 
-# PDF banao — Hindi pehle, English neeche
+# PDF banao — date, site, WBGT, brief, risk, roster
 def make_pdf(path, date_str, site, wbgt_max, wbgt_noon,
-             high_risk_names, roster_df, lang_note):
+             high_risk_names, roster_df, lang_note, heat_names=None):
     # file banao
     doc = SimpleDocTemplate(path, pagesize=A4,
                             topMargin=2 * cm, bottomMargin=2 * cm)
@@ -18,45 +19,44 @@ def make_pdf(path, date_str, site, wbgt_max, wbgt_noon,
     styles = getSampleStyleSheet()
     # sab kuch list me daalo
     story = []
-    # title — Hindi
-    story.append(Paragraph("Heat-Shift Roster — Compliance Log", styles["Title"]))
-    story.append(Paragraph("OSH Code ke hisaab se daily log (Daily compliance log)", styles["Normal"]))
+    # title
+    story.append(Paragraph("Heat-Shift Roster — Compliance Log (OSH Code)", styles["Title"]))
+    story.append(Paragraph("Daily compliance log", styles["Normal"]))
     story.append(Spacer(1, 12))
-    # date aur site — dono bhasha me
-    story.append(Paragraph(f"Date / Tarikh: {date_str}", styles["Normal"]))
+    # date aur site
+    story.append(Paragraph(f"Date: {date_str}", styles["Normal"]))
     story.append(Paragraph(f"Site: {site}", styles["Normal"]))
-    story.append(Paragraph(f"Max WBGT: {wbgt_max} C, Dopahar 12 baje WBGT: {wbgt_noon} C", styles["Normal"]))
+    story.append(Paragraph(f"Max WBGT: {wbgt_max} C, WBGT at 12:00: {wbgt_noon} C", styles["Normal"]))
     story.append(Spacer(1, 12))
-    # Hindi brief
-    story.append(Paragraph("Hindi Brief:", styles["Heading2"]))
+    # brief
+    story.append(Paragraph("Morning Brief:", styles["Heading2"]))
     story.append(Paragraph(
-        f"Aaj dopahar me garmi zyada hai (WBGT {wbgt_max} C). "
-        "Bhaari kaam subah 6-11 aur shaam 4-8 me karo. "
-        "Dopahar 12-4 break lo, paani piyo. "
-        "Dihaadi poori milegi, break ka time kaata nahi jayega.",
-        styles["Normal"]))
-    story.append(Spacer(1, 6))
-    # English brief
-    story.append(Paragraph("English Brief:", styles["Heading2"]))
-    story.append(Paragraph(
-        f"Today heat is high (WBGT {wbgt_max} C). "
+        f"Today heat is high in the afternoon (WBGT {wbgt_max} C). "
         "Do heavy work in the morning 6-11 and evening 4-8. "
-        "Take a break 12-4, drink water. "
+        "Take a break 12-4, drink water, sit in shade. "
         "Full day wage will be paid, break time will not be cut.",
         styles["Normal"]))
     story.append(Spacer(1, 12))
     # high risk workers
-    story.append(Paragraph("High Risk Workers / Zyada Risk Wale Worker:", styles["Heading2"]))
+    story.append(Paragraph("High Risk Workers:", styles["Heading2"]))
     if high_risk_names:
         for name in high_risk_names:
-            story.append(Paragraph(f"- {name} — halka kaam do, dopahar me mat lagao", styles["Normal"]))
+            story.append(Paragraph(f"- {name} — give light work, no heavy work at midday", styles["Normal"]))
     else:
-        story.append(Paragraph("Koi High risk worker nahi hai. / No high risk worker.", styles["Normal"]))
+        story.append(Paragraph("No high risk worker.", styles["Normal"]))
     story.append(Spacer(1, 12))
+    # past heat illness — hamesha High risk
+    if heat_names:
+        story.append(Paragraph("Past Heat Illness:", styles["Heading2"]))
+        for name in heat_names:
+            story.append(Paragraph(
+                f"- {name} — marked yes, always High risk, no heavy work at midday.",
+                styles["Normal"]))
+        story.append(Spacer(1, 12))
     # roster table
-    story.append(Paragraph("Naya Roster / New Roster:", styles["Heading2"]))
+    story.append(Paragraph("New Roster:", styles["Heading2"]))
     # table data banao
-    data = [["Task / Kaam", "Time / Samay", "Note"]]
+    data = [["Task", "Time", "Note"]]
     for _, r in roster_df.iterrows():
         data.append([str(r["task"]), str(r["time"]), str(r["note"])])
     # table banao
@@ -70,8 +70,8 @@ def make_pdf(path, date_str, site, wbgt_max, wbgt_noon,
     story.append(Spacer(1, 12))
     # note — ye medical advice nahi hai
     story.append(Paragraph(
-        "Note: Ye medical advice nahi hai. Tabiyat kharab ho to doctor ko dikhao. "
-        "/ This is not medical advice. See a doctor if you feel unwell.",
+        "Note: This is not medical advice. If a worker feels unwell, "
+        "stop work and see a doctor.",
         styles["Normal"]))
     story.append(Paragraph(lang_note, styles["Normal"]))
     # PDF likho

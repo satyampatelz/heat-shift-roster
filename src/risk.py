@@ -8,8 +8,19 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 
 
+# garmi ke point — WBGT se seedha, har degree pe badhta hai
+def heat_points(wbgt_max):
+    # 20 se upar har degree pe 1.7 point, max 30
+    h = round((wbgt_max - 20) * 1.7)
+    if h < 0:
+        return 0
+    if h > 30:
+        return 30
+    return h
+
+
 # rule se score nikalo — 0 se 100
-def rule_score(age, work_type, experience, wbgt_max):
+def rule_score(age, work_type, experience, wbgt_max, ill=False):
     # shuru me 0
     score = 0
     # umar zyada ho to risk zyada
@@ -23,11 +34,11 @@ def rule_score(age, work_type, experience, wbgt_max):
     # naya worker ho to risk zyada (garmi ki aadat nahi)
     if experience == "new":
         score = score + 20
-    # garmi zyada ho to risk zyada
-    if wbgt_max > 32:
-        score = score + 25
-    elif wbgt_max > 28:
-        score = score + 15
+    # garmi zyada ho to risk zyada — har degree pe point
+    score = score + heat_points(wbgt_max)
+    # pehle garmi se beemar hua ho to hamesha High risk
+    if ill:
+        score = max(score, 80)
     # 100 se zyada mat karo
     return min(score, 100)
 
@@ -48,9 +59,13 @@ def risk_band(score):
 def score_workers(workers_df, wbgt_max):
     # copy banao
     df = workers_df.copy()
+    # heat illness wala column ho to lo, nahi to sab False
+    if "heat_illness" not in df.columns:
+        df["heat_illness"] = False
     # har worker ka score nikalo
     df["score"] = df.apply(
-        lambda r: rule_score(r["age"], r["work_type"], r["experience"], wbgt_max),
+        lambda r: rule_score(r["age"], r["work_type"], r["experience"],
+                             wbgt_max, bool(r["heat_illness"])),
         axis=1)
     # band nikalo
     df["risk"] = df["score"].apply(risk_band)
