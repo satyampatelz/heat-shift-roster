@@ -1,0 +1,23 @@
+Name,Age,Work Type,Experience,Daily Wage,Heat Illness Before
+Imran Ansari,36,heavy,experienced,650,no
+Bhola Ram,54,heavy,experienced,700,yes
+Chandan Kumar,26,light,new,550,no
+Gopal Singh,41,light,experienced,600,no
+Ramesh Yadav,47,heavy,experienced,680,no
+Sunita Devi,32,light,experienced,580,no
+Amit Kumar,24,heavy,new,520,no
+Harish Chandra,58,heavy,experienced,720,yes
+Santosh Mahto,45,light,experienced,610,no
+Vikash Singh,29,heavy,new,540,no
+Pooja Kumari,27,light,new,530,no
+Manoj Prasad,51,heavy,experienced,690,no
+
+Task Name,Work Type,Hours
+Concrete pouring,heavy,4
+Brick laying,heavy,4
+Steel fixing,heavy,3
+Plaster,light,3
+Painting,light,2
+Tile fitting,light,3
+Scaffolding,heavy,2
+Material carrying,heavy,3
