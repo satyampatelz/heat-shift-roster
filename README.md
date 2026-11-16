@@ -4,13 +4,24 @@
 
 ## How to run
 
+1. Get the code — download the ZIP from GitHub (green Code button → Download ZIP) and extract it, or clone it:
 ```bash
+git clone https://github.com/satyampatelz/heat-shift-roster.git
 cd heat-shift-roster
-pip install -r requirements.txt
-streamlit run app.py
 ```
+2. Open a terminal in the project folder.
+3. Install the libraries (first time only):
+```bash
+pip install -r requirements.txt
+```
+4. Run the app:
+```bash
+python -m streamlit run app.py
+```
+Use `python -m streamlit` — plain `streamlit` may not be found if the Scripts folder is not on PATH.
+5. On the first run it asks for an email — press Enter to skip it. The app opens in the browser at http://localhost:8501.
 
-It opens in the browser. Change the date (default 29 May 2024 — the hottest day), change the language from the top (English / Hindi).
+Change the date (default 29 May 2024 — the hottest day), change the language from the top (English / Hindi).
 
 ## What is real
 
