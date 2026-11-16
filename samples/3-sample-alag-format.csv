@@ -1,0 +1,10 @@
+Age,Name,Daily Wage,Work Type,Experience,Heat Illness Before
+36,Imran Ansari,650,Heavy,Experienced,No
+54,Bhola Ram,700,Heavy,Experienced,Yes
+26,Chandan Kumar,550,Light,New,No
+41,Gopal Singh,600,Light,Experienced,No
+Hours,Task Name,Type
+4,Concrete pouring,Heavy
+4,Brick laying,Heavy
+3,Plaster,Light
+2,Painting,Light

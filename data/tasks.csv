@@ -1,0 +1,9 @@
+task,work_type,hours,crew,deadline,depends_on
+concrete pouring,heavy,4,6,today,none
+brick laying,heavy,4,5,today,concrete pouring
+steel cutting,heavy,3,4,today,none
+material shifting,heavy,3,4,today,none
+scaffolding,heavy,2,3,today,none
+plaster,light,3,3,today,brick laying
+painting,light,2,2,today,plaster
+cleaning,light,2,3,today,none
